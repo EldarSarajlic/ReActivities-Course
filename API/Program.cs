@@ -1,3 +1,5 @@
+using Application.Activities.Queries;
+using Application.Core;
 using Microsoft.Build.Framework;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
@@ -7,14 +9,24 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
+//Adding controllers
 builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+
+//Adding database
 builder.Services.AddDbContext<AppDbContext>(opt => 
 {
     opt.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection"));
 });
+
+//Adding CORS certificate for HTTPS
 builder.Services.AddCors();
 
+//Adding mediator for communication between API and Application project
+builder.Services.AddMediatR(
+    x=>x.RegisterServicesFromAssemblyContaining<GetActivityList.Handler>());
+
+//Adding the automapper
+builder.Services.AddAutoMapper(typeof(MappingProfiles).Assembly);
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
